@@ -5,13 +5,13 @@ using UnityEngine;
 
 namespace UnityTools.Atom
 {
-    public class InternalBlackboardParameter_GameObject : InternalBlackboardParameter<GameObjectAsset>
+    public class InternalBlackboardParameter_GameObject : InternalBlackboardParameter<GameObject, GameObjectAsset, GameObjectVariable>
     {
-        public override IClonable Clone()
-        {
-            InternalBlackboardParameter_GameObject obj = base.Clone() as InternalBlackboardParameter_GameObject;
-            obj.Value = Value;
-            return obj;
-        }
+        //public override IClonable Clone()
+        //{
+        //    InternalBlackboardParameter_GameObject obj = base.Clone() as InternalBlackboardParameter_GameObject;
+        //    obj.Value = Value;
+        //    return obj;
+        //}
     }
 }

@@ -69,20 +69,24 @@ namespace UnityTools.Atom
             string finalSentence;
             if (valid)
             {
-                finalSentence = "Parameter: " + "\"" + paramName + "\"";
+                finalSentence = "\"" + paramName + "\"";
             }
             else
             {
                 finalSentence = "Invalid parameter";
             }
 
+            SerializedProperty bshow = elementObject.FindProperty("ShowInBlackBoard");
             // Remove all prefix in the type (namespace + BlackboardParameter_ ...)
             string typeStr = elementObject.targetObject.GetType().ToString();
             typeStr = typeStr.Remove(0, typeStr.IndexOf("_") + 1);
 
             float ry = rect.y + lineHeight * 0.1f;
-            Rect labelRect0 = new Rect(rect.x, ry, rect.width * 0.7f, lineHeight);
-            Rect labelRect1 = new Rect(rect.x + rect.width * 0.75f, ry, rect.width * 0.25f, lineHeight);
+            Rect labelRect0 = new Rect(rect.x, ry, rect.width * 0.50f, lineHeight);
+            Rect labelRect1 = new Rect(rect.x + rect.width * 0.525f, ry, rect.width * .375f, lineHeight);
+            Rect labelRect2 = new Rect(rect.x + rect.width * 0.95f, ry, rect.width * 0.05f, lineHeight);
+
+            
 
             GUIStyle customHelpBoxStyle = new GUIStyle(EditorStyles.helpBox);
             customHelpBoxStyle.alignment = TextAnchor.MiddleCenter;
@@ -90,31 +94,38 @@ namespace UnityTools.Atom
             EditorGUI.LabelField(labelRect0, finalSentence, valid ? EditorStyles.helpBox : customHelpBoxStyle);
             EditorGUI.LabelField(labelRect1, typeStr, customHelpBoxStyle);
 
-           
+            bshow.boolValue = EditorGUI.Toggle(labelRect2, GUIContent.none, bshow.boolValue);
 
-            SerializedProperty description = elementObject.FindProperty("Description");
-            SerializedProperty bshared = elementObject.FindProperty("MustBeShared");
-            SerializedProperty ValueRef = elementObject.FindProperty("Value");
-
-            Rect buttonRect0 = new Rect(rect.x, rect.y + lineHeightSpace, rect.width, lineHeight);
-            Rect buttonRect1 = new Rect(rect.x, rect.y + lineHeightSpace * 2, rect.width, lineHeight);
-            Rect buttonRect2 = new Rect(rect.x, rect.y + lineHeightSpace * 3, rect.width, lineHeight);
-            Rect buttonRect3 = new Rect(rect.x, rect.y + lineHeightSpace * 4, rect.width, lineHeight);
-
-            EditorGUI.PropertyField(buttonRect0, name, new GUIContent("Entry Name"), false);
-            //EditorGUI.ObjectField(buttonRect0, name, GUIContent.none);
-
-            description.stringValue = EditorGUI.TextField(buttonRect1, "Entry Description", description.stringValue);
-            description.serializedObject.ApplyModifiedProperties();
-
-            bshared.boolValue = EditorGUI.Toggle(buttonRect2, new GUIContent("Instance Synced", "May this parameter be shared with all blackboard's owners."), bshared.boolValue);
-            bshared.serializedObject.ApplyModifiedProperties();
-
-            if (bshared.boolValue)
+            if (bshow.boolValue)
             {
-                EditorGUI.indentLevel++;
-                EditorGUI.PropertyField(buttonRect3, ValueRef, new GUIContent("Shared Variable"));
-                EditorGUI.indentLevel--;
+                SerializedProperty description = elementObject.FindProperty("Description");
+                SerializedProperty bshared = elementObject.FindProperty("MustBeShared");
+                SerializedProperty ValueRef = elementObject.FindProperty("Value");
+                SerializedProperty DefaultValueRef = elementObject.FindProperty("DefaultValue");
+
+                Rect buttonRect0 = new Rect(rect.x, rect.y + lineHeightSpace, rect.width, lineHeight);
+                Rect buttonRect1 = new Rect(rect.x, rect.y + lineHeightSpace * 2, rect.width, lineHeight);
+                Rect buttonRect2 = new Rect(rect.x, rect.y + lineHeightSpace * 3, rect.width, lineHeight);
+                Rect buttonRect3 = new Rect(rect.x, rect.y + lineHeightSpace * 4, rect.width, lineHeight);
+                Rect buttonRect4 = new Rect(rect.x, rect.y + lineHeightSpace * 5, rect.width, lineHeight);
+
+                EditorGUI.PropertyField(buttonRect0, name, new GUIContent("Entry Name"), false);
+
+
+                description.stringValue = EditorGUI.TextField(buttonRect1, "Entry Description", description.stringValue);
+                description.serializedObject.ApplyModifiedProperties();
+
+                EditorGUI.PropertyField(buttonRect2, DefaultValueRef, new GUIContent("Default value"));
+
+                bshared.boolValue = EditorGUI.Toggle(buttonRect3, new GUIContent("Instance Synced", "May this parameter be shared with all blackboard's owners."), bshared.boolValue);
+                bshared.serializedObject.ApplyModifiedProperties();
+
+                if (bshared.boolValue)
+                {
+                    EditorGUI.indentLevel++;
+                    EditorGUI.PropertyField(buttonRect4, ValueRef, new GUIContent("Shared Variable"));
+                    EditorGUI.indentLevel--;
+                }
             }
 
             if (elementObject.hasModifiedProperties)
@@ -132,11 +143,12 @@ namespace UnityTools.Atom
             }
             SerializedObject elementObject = new SerializedObject(element.objectReferenceValue);
             SerializedProperty bshared = elementObject.FindProperty("MustBeShared");
+            SerializedProperty bshow = elementObject.FindProperty("ShowInBlackBoard");
 
 
             float height = 0;
             float lineHeightSpace = EditorGUIUtility.singleLineHeight + 5f;
-            height = lineHeightSpace * (bshared.boolValue ? 5f : 4f);
+            height = lineHeightSpace * (bshow.boolValue ? (bshared.boolValue ? 6f : 5f) : 1f);
             return height;
         }
     }

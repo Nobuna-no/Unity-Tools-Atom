@@ -11,6 +11,11 @@ namespace UnityTools.Atom
         [HideInInspector]
         public bool MustBeShared;
 
+#if UNITY_EDITOR
+        [HideInInspector]
+        public bool ShowInBlackBoard = false;
+#endif
+
         public virtual IClonable Clone()
         {
             InternalBlackboardParameter obj = CreateInstance(GetType()) as InternalBlackboardParameter;
@@ -27,10 +32,12 @@ namespace UnityTools.Atom
         { }
     }
 
-    public class InternalBlackboardParameter<T> : InternalBlackboardParameter
-        where T : IAsset
+    public class InternalBlackboardParameter<T, TAsset, TVariable> : InternalBlackboardParameter
+        where TAsset : TAsset<T>
+        where TVariable : TVariable<T,TAsset>
     {
-        public T Value;
+        public TAsset Value;
+        public TVariable DefaultValue;
 
         public override string ToString()
         {
@@ -39,10 +46,11 @@ namespace UnityTools.Atom
 
         public override IClonable Clone()
         {
-            InternalBlackboardParameter<T> obj = base.Clone() as InternalBlackboardParameter<T>;
+            InternalBlackboardParameter<T, TAsset, TVariable> obj = base.Clone() as InternalBlackboardParameter<T, TAsset, TVariable>;
             if (obj)
             {
                 obj.Value = Value;
+                obj.DefaultValue = DefaultValue;
                 return obj;
             }
             return null;
@@ -53,8 +61,10 @@ namespace UnityTools.Atom
             if (!MustBeShared
                 || (MustBeShared && Value == null))
             {
-                Value = ScriptableObject.CreateInstance<T>();
+                Value = ScriptableObject.CreateInstance<TAsset>();
             }
+
+            Value.Value = DefaultValue.Value;
         }
 
         public override void Close()

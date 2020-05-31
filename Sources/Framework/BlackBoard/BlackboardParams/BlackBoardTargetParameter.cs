@@ -17,20 +17,20 @@ namespace UnityTools.Atom
         { }
     }
 
-    public class BlackboardTargetParameter_Template<T, TVariable> : BlackboardTargetParameter
-        where TVariable : TAsset<T>
+    public class BlackboardTargetParameter_Template<T, TAsset> : BlackboardTargetParameter
+        where TAsset : TAsset<T>
     {
         //public T DefaultValue;
         [ReadOnly]
-        public TVariable Variable;
+        public TAsset Variable;
 
         public override void Initialize(BlackBoardAsset board)
         {
             //board.SetValue(this, DefaultValue);
-            Variable = board.GetVariable<T, TVariable>(this);
+            Variable = board.GetVariable<T, TAsset, TVariable<T, TAsset>>(this);
         }
 
-        public static implicit operator T(BlackboardTargetParameter_Template<T, TVariable> _object)
+        public static implicit operator T(BlackboardTargetParameter_Template<T, TAsset> _object)
         {
             return _object.Variable.Value;
         }

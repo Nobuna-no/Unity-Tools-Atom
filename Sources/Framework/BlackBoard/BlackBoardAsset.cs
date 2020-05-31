@@ -48,12 +48,13 @@ namespace UnityTools.Atom
                 }
             }
 
-            public bool SetReference<T, TVariable>(string entryName, ref TVariable var)
-                where TVariable : TAsset<T>
+            public bool SetReference<T, TAsset, TVariable>(string entryName, ref TAsset var)
+                where TAsset : TAsset<T>
+                where TVariable : TVariable<T, TAsset>
             {
                 if (ParametersMap.ContainsKey(entryName))
                 {
-                    InternalBlackboardParameter<TVariable> b = ParametersMap[entryName] as InternalBlackboardParameter<TVariable>;
+                    InternalBlackboardParameter<T, TAsset, TVariable> b = ParametersMap[entryName] as InternalBlackboardParameter<T, TAsset, TVariable>;
                     b.Value = var;
                     return b != null ? b.Value : null;
                 }
@@ -61,12 +62,13 @@ namespace UnityTools.Atom
                 return false;
             }
 
-            public TVariable GetVariable<T, TVariable>(string entryName)
-                where TVariable : TAsset<T>
+            public TAsset GetVariable<T, TAsset, TVariable>(string entryName)
+                where TAsset : TAsset<T>
+                where TVariable : TVariable<T, TAsset>
             {
                 if (entryName != null && entryName != "" && ParametersMap.ContainsKey(entryName))
                 {
-                    InternalBlackboardParameter<TVariable> b = ParametersMap[entryName] as InternalBlackboardParameter<TVariable>;
+                    InternalBlackboardParameter<T, TAsset, TVariable> b = ParametersMap[entryName] as InternalBlackboardParameter<T, TAsset, TVariable>;
                     return b != null ? b.Value : null;
                 }
 
@@ -127,23 +129,25 @@ namespace UnityTools.Atom
 
 
         #region PUBLIC METHODS - TEMPLATE
-        public bool SetReference<T, TVariable>(BlackboardTargetParameter target, ref TVariable var)
-            where TVariable : TAsset<T>
+        public bool SetReference<T, TAsset, TVariable>(BlackboardTargetParameter target, ref TAsset var)
+            where TAsset : TAsset<T>
+            where TVariable : TVariable<T, TAsset>
         {
             if (EntitiesMap.ContainsKey(target.Target))
             {
-                return m_EntitiesMap[target.Target].SetReference<T, TVariable>(target.EntryName, ref var);
+                return m_EntitiesMap[target.Target].SetReference<T, TAsset, TVariable>(target.EntryName, ref var);
             }
             else
             {
                 m_EntitiesMap.Add(target.Target, ParametersMap);
                 target.Initialize(this);
-                return SetReference<T, TVariable>(target, ref var);
+                return SetReference<T, TAsset, TVariable>(target, ref var);
             }
         }
 
-        public TVariable GetVariable<T, TVariable>(BlackboardTargetParameter target)
-            where TVariable : TAsset<T>
+        public TAsset GetVariable<T, TAsset, TVariable>(BlackboardTargetParameter target)
+            where TAsset : TAsset<T>
+            where TVariable : TVariable<T, TAsset>
         {
             if (EntitiesMap.ContainsKey(target.Target))
             {
@@ -151,13 +155,13 @@ namespace UnityTools.Atom
                 {
                     return null;
                 }
-                return m_EntitiesMap[target.Target].GetVariable<T, TVariable>(target.EntryName);
+                return m_EntitiesMap[target.Target].GetVariable<T, TAsset, TVariable>(target.EntryName);
             }
             else
             {
                 m_EntitiesMap.Add(target.Target, new ParametersBoard(ParametersMap));
                 target.Initialize(this);
-                return GetVariable<T, TVariable>(target);
+                return GetVariable<T, TAsset, TVariable>(target);
             }
         }
 
@@ -165,7 +169,7 @@ namespace UnityTools.Atom
         {
             if (EntitiesMap.ContainsKey(target.Target))
             {
-                TAsset<T> val = GetVariable<T, TAsset<T>>(target);
+                TAsset<T> val = GetVariable<T, TAsset<T>, TVariable<T, TAsset<T>>>(target);
                 if (val)
                 {
                     val.Value = var;
@@ -179,22 +183,24 @@ namespace UnityTools.Atom
             }
         }
 
-        public bool SetReference<T, TVariable>(GameObject target, string entryName, ref TVariable var)
-            where TVariable : TAsset<T>
+        public bool SetReference<T, TAsset, TVariable>(GameObject target, string entryName, ref TAsset var)
+            where TAsset : TAsset<T>
+            where TVariable : TVariable<T, TAsset>
         {
             if (EntitiesMap.ContainsKey(target))
             {
-                return m_EntitiesMap[target].SetReference<T, TVariable>(entryName, ref var);
+                return m_EntitiesMap[target].SetReference<T, TAsset, TVariable>(entryName, ref var);
             }
             else
             {
                 m_EntitiesMap.Add(target, new ParametersBoard(ParametersMap));
-                return SetReference<T, TVariable>(target, entryName, ref var);
+                return SetReference<T, TAsset, TVariable>(target, entryName, ref var);
             }
         }
 
-        public TVariable GetVariable<T, TVariable>(GameObject target, string entryName)
-            where TVariable : TAsset<T>
+        public TAsset GetVariable<T, TAsset, TVariable>(GameObject target, string entryName)
+            where TAsset : TAsset<T>
+            where TVariable : TVariable<T, TAsset>
         {
             if (EntitiesMap.ContainsKey(target))
             {
@@ -202,21 +208,22 @@ namespace UnityTools.Atom
                 {
                     return null;
                 }
-                return m_EntitiesMap[target].GetVariable<T, TVariable>(entryName);
+                return m_EntitiesMap[target].GetVariable<T, TAsset, TVariable>(entryName);
             }
             else
             {
                 m_EntitiesMap.Add(target, new ParametersBoard(ParametersMap));
-                return GetVariable<T, TVariable>(target, entryName);
+                return GetVariable<T, TAsset, TVariable>(target, entryName);
             }
         }
 
-        public void SetValue<T, TVariable>(GameObject target, string entryName, T var)
-            where TVariable : TAsset<T>
+        public void SetValue<T, TAsset, TVariable>(GameObject target, string entryName, T var)
+            where TAsset : TAsset<T>
+            where TVariable : TVariable<T, TAsset>
         {
             if (EntitiesMap.ContainsKey(target))
             {
-                TVariable val = GetVariable<T, TVariable>(target, entryName);
+                TAsset val = GetVariable<T, TAsset, TVariable>(target, entryName);
                 if (val)
                 {
                     val.Value = var;
@@ -225,7 +232,7 @@ namespace UnityTools.Atom
             else
             {
                 m_EntitiesMap.Add(target, new ParametersBoard(ParametersMap));
-                SetValue<T, TVariable>(target, entryName, var);
+                SetValue<T, TAsset, TVariable>(target, entryName, var);
             }
         }
         #endregion
@@ -248,7 +255,7 @@ namespace UnityTools.Atom
         // BOOLEAN
         public BoolAsset GetBooleanVariable(BlackboardTargetParameter target)
         {
-            return GetVariable<bool, BoolAsset>(target);
+            return GetVariable<bool, BoolAsset, BoolVariable>(target);
         }
 
         public void SetBooleanValue(BlackboardTargetParameter target, bool value)
@@ -258,14 +265,14 @@ namespace UnityTools.Atom
 
         public bool SetBooleanReference(BlackboardTargetParameter target, ref BoolAsset var)
         {
-            return SetReference<bool, BoolAsset>(target, ref var);
+            return SetReference<bool, BoolAsset, BoolVariable>(target, ref var);
         }
 
 
         // INTEGER
         public IntegerAsset GetIntegerVariable(BlackboardTargetParameter target)
         {
-            return GetVariable<int, IntegerAsset>(target);
+            return GetVariable<int, IntegerAsset, IntegerVariable>(target);
         }
 
         public void SetIntegerValue(BlackboardTargetParameter target, int value)
@@ -275,14 +282,14 @@ namespace UnityTools.Atom
 
         public bool SetIntegerReference(BlackboardTargetParameter target, ref IntegerAsset var)
         {
-            return SetReference<int, IntegerAsset>(target, ref var);
+            return SetReference<int, IntegerAsset, IntegerVariable>(target, ref var);
         }
 
 
         // FLOAT
         public FloatAsset GetFloatVariable(BlackboardTargetParameter target)
         {
-            return GetVariable<float, FloatAsset>(target);
+            return GetVariable<float, FloatAsset, FloatVariable>(target);
         }
 
         public void SetFloatValue(BlackboardTargetParameter target, float value)
@@ -292,14 +299,14 @@ namespace UnityTools.Atom
 
         public bool SetFloatReference(BlackboardTargetParameter target, ref FloatAsset var)
         {
-            return SetReference<float, FloatAsset>(target, ref var);
+            return SetReference<float, FloatAsset, FloatVariable>(target, ref var);
         }
 
 
         // VECTOR2
         public Vector2Asset GetVector2Variable(BlackboardTargetParameter target)
         {
-            return GetVariable<Vector2, Vector2Asset>(target);
+            return GetVariable<Vector2, Vector2Asset, Vector2Variable>(target);
         }
 
         public void SetVector2Value(BlackboardTargetParameter target, Vector2 value)
@@ -309,14 +316,14 @@ namespace UnityTools.Atom
 
         public bool SetVector2Reference(BlackboardTargetParameter target, ref Vector2Asset var)
         {
-            return SetReference<Vector2, Vector2Asset>(target, ref var);
+            return SetReference<Vector2, Vector2Asset, Vector2Variable>(target, ref var);
         }
 
 
         // VECTOR3
         public Vector3Asset GetVector3Variable(BlackboardTargetParameter target)
         {
-            return GetVariable<Vector3, Vector3Asset>(target);
+            return GetVariable<Vector3, Vector3Asset, Vector3Variable>(target);
         }
 
         public void SetVector3Value(BlackboardTargetParameter target, Vector3 value)
@@ -326,14 +333,14 @@ namespace UnityTools.Atom
 
         public bool SetVector3Reference(BlackboardTargetParameter target, ref Vector3Asset var)
         {
-            return SetReference<Vector3, Vector3Asset>(target, ref var);
+            return SetReference<Vector3, Vector3Asset, Vector3Variable>(target, ref var);
         }
 
 
         // GAMEOBJECT
         public GameObjectAsset GetGameObjectVariable(BlackboardTargetParameter target)
         {
-            return GetVariable<GameObject, GameObjectAsset>(target);
+            return GetVariable<GameObject, GameObjectAsset, GameObjectVariable>(target);
         }
 
         public void SetGameObjectValue(BlackboardTargetParameter target, GameObject value)
@@ -343,7 +350,7 @@ namespace UnityTools.Atom
 
         public bool SetGameObjectReference(BlackboardTargetParameter target, ref GameObjectAsset var)
         {
-            return SetReference<GameObject, GameObjectAsset>(target, ref var);
+            return SetReference<GameObject, GameObjectAsset, GameObjectVariable>(target, ref var);
         }
         #endregion
     }

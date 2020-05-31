@@ -20,11 +20,11 @@ namespace UnityTools.Atom
         { }
     }
 
-    public class BlackboardParameter_Template<T, TVariable> : BlackboardParameter
-        where TVariable : TAsset<T>
+    public class BlackboardParameter_Template<T, TAsset> : BlackboardParameter
+        where TAsset : TAsset<T>
     {
-        public TVariable _Variable;
-        public TVariable Variable { get => _Variable; }
+        public TAsset _Variable;
+        public TAsset Variable { get => _Variable; }
 
         /// <summary>
         /// Initialize the blackboard value, getting the target's variable in the blackboard.
@@ -40,10 +40,10 @@ namespace UnityTools.Atom
                 || EntryName.Value.Length == 0)
             {
                 Debug.LogWarning(this + ": Failed to Initialize blackboard parameter from BlackBoard[\"" + board + "\"] and target[\"" + Target.name + "\"].");
-                _Variable = ScriptableObject.CreateInstance<TVariable>();
+                _Variable = ScriptableObject.CreateInstance<TAsset>();
                 return;
             }
-            _Variable = board.GetVariable<T, TVariable>(Target, EntryName);
+            _Variable = board.GetVariable<T, TAsset, TVariable<T, TAsset>>(Target, EntryName);
 
             if (_Variable != null)
             {
@@ -51,7 +51,7 @@ namespace UnityTools.Atom
             }
         }
 
-        public static implicit operator T(BlackboardParameter_Template<T, TVariable> _object)
+        public static implicit operator T(BlackboardParameter_Template<T, TAsset> _object)
         {
             return _object._Variable.Value;
         }

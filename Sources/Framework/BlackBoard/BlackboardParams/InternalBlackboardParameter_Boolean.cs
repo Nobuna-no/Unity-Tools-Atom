@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace UnityTools.Atom
 {
-    public class InternalBlackboardParameter_Boolean : InternalBlackboardParameter<BoolAsset>
+    public class InternalBlackboardParameter_Boolean : InternalBlackboardParameter<bool, BoolAsset, BoolVariable>
     {
     }
 }
