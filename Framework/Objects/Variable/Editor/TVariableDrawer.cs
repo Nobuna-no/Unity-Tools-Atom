@@ -60,12 +60,37 @@ namespace UnityTools.Atom
         }
     }
 
+
+    [CustomPropertyDrawer(typeof(BoolVariable))]
+    public class BoolVariableDrawer : TVariableDrawer
+    { }
+
     [CustomPropertyDrawer(typeof(IntegerVariable))]
     public class IntegerVariableDrawer : TVariableDrawer
     { }
 
+    [CustomPropertyDrawer(typeof(FloatVariable))]
+    public class FloatVariableDrawer : TVariableDrawer
+    { }
+
+    [CustomPropertyDrawer(typeof(CurveVariable))]
+    public class CurveVariableDrawer : TVariableDrawer
+    { }
+
+    [CustomPropertyDrawer(typeof(GameObjectVariable))]
+    public class GameObjectVariableDrawer : TVariableDrawer
+    { }
+
     [CustomPropertyDrawer(typeof(StringVariable))]
     public class StringVariableDrawer : TVariableDrawer
+    { }
+
+    [CustomPropertyDrawer(typeof(Vector2Variable))]
+    public class Vector2VariableDrawer : TVariableDrawer
+    { }
+
+    [CustomPropertyDrawer(typeof(Vector3Variable))]
+    public class Vector3VariableDrawer : TVariableDrawer
     { }
 
 
