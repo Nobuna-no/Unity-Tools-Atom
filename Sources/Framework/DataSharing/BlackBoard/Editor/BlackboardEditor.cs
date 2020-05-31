@@ -127,7 +127,7 @@ namespace UnityTools.Atom
 
         private void AddItem(object obj)
         {
-            AssetInfo<ReorderableList> assetInfo = (AssetInfo<ReorderableList>)obj;
+            AssetInfo<ReorderableList> assetInfo = obj as AssetInfo<ReorderableList>;
 
             string assetName = (assetInfo.AssetPath);
 

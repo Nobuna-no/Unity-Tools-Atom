@@ -91,7 +91,31 @@ namespace UnityTools.Atom
         {
             if (!_UseConstant)
             {
-                Asset.OnValueChanged.AddListener(action);
+                Asset.AddListenerOnValueChanged(action);
+            }
+        }
+
+
+        /// <summary>
+        /// Remove an event to the OnValueChanged callback of the asset (only for non constant usage).
+        /// </summary>
+        /// <param name="action">The method or action that will listen the event.</param>
+        public void RemoveActionOnValueChanged(UnityAction action)
+        {
+            if (!_UseConstant)
+            {
+                Asset.RemoveListenerOnValueChanged(action);
+            }
+        }
+
+        /// <summary>
+        /// Reset OnValueChanged callback of the asset (only for non constant usage).
+        /// </summary>
+        public void ResetActionOnValueChanged()
+        {
+            if (!_UseConstant)
+            {
+                Asset.ResetOnValueChanged();
             }
         }
         #endregion

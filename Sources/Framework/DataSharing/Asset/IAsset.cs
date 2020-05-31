@@ -11,7 +11,7 @@ namespace UnityTools.Atom
     public class IAsset : ScriptableObject
     {
         #region PARAMETER
-        public UnityEvent OnValueChanged;
+        protected UnityEvent OnValueChanged;
         #endregion
 
         #region PUBLIC METHODS
@@ -22,6 +22,27 @@ namespace UnityTools.Atom
 
         public virtual void SetValueFromString(string value)
         { }
+
+        public void AddListenerOnValueChanged(UnityAction unityAction)
+        {
+            if(OnValueChanged == null)
+            {
+                OnValueChanged = new UnityEvent();
+            }
+            OnValueChanged.AddListener(unityAction);
+        }
+        public void RemoveListenerOnValueChanged(UnityAction unityAction)
+        {
+            if (OnValueChanged == null)
+            {
+                OnValueChanged = new UnityEvent();
+            }
+            OnValueChanged.RemoveListener(unityAction);
+        }
+        public void ResetOnValueChanged()
+        {
+            OnValueChanged.RemoveAllListeners();
+        }
         #endregion
     }
 }

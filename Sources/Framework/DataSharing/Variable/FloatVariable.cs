@@ -6,5 +6,10 @@ namespace UnityTools.Atom
 {
     [System.Serializable]
     public class FloatVariable : TVariable<float, FloatAsset>
-    { }
+    {
+        public FloatVariable(float initialValue)
+        {
+            Value = initialValue;
+        }
+    }
 }
