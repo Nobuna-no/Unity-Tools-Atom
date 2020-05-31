@@ -18,7 +18,6 @@ namespace UnityTools.Atom
         #region UNITY METHODS
         private void OnDisable()
         {
-
             Target.OnAssetDeletion -= ClearBeforeDeletion;
         }
 
@@ -29,7 +28,7 @@ namespace UnityTools.Atom
                 return;
             }
 
-            Target = (BlackBoardAsset)target;
+            Target = target as BlackBoardAsset;
             Target.OnAssetDeletion += ClearBeforeDeletion;
 
             // Step 1: Get properties.

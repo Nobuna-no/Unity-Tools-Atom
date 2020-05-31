@@ -18,8 +18,8 @@ namespace UnityTools.Atom
             }
             set
             {
-                OnValueChanged?.Invoke();
                 SetValue(value);
+                OnValueChanged?.Invoke();
             }
         }
         #endregion

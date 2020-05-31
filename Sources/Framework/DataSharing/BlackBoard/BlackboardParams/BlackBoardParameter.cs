@@ -20,8 +20,9 @@ namespace UnityTools.Atom
         { }
     }
 
-    public class BlackboardParameter_Template<T, TAsset> : BlackboardParameter
+    public class BlackboardParameter_Template<T, TAsset, TVariable> : BlackboardParameter
         where TAsset : TAsset<T>
+        where TVariable : TVariable<T, TAsset>
     {
         public TAsset _Variable;
         public TAsset Variable { get => _Variable; }
@@ -43,7 +44,7 @@ namespace UnityTools.Atom
                 _Variable = ScriptableObject.CreateInstance<TAsset>();
                 return;
             }
-            _Variable = board.GetVariable<T, TAsset, TVariable<T, TAsset>>(Target, EntryName);
+            _Variable = board.GetVariable<T, TAsset, TVariable>(Target, EntryName);
 
             if (_Variable != null)
             {
@@ -51,31 +52,31 @@ namespace UnityTools.Atom
             }
         }
 
-        public static implicit operator T(BlackboardParameter_Template<T, TAsset> _object)
+        public static implicit operator T(BlackboardParameter_Template<T, TAsset, TVariable> _object)
         {
             return _object._Variable.Value;
         }
     }
 
     [System.Serializable]
-    public class BBP_Bool : BlackboardParameter_Template<bool, BoolAsset>
+    public class BBP_Bool : BlackboardParameter_Template<bool, BoolAsset, BoolVariable>
     { }
     [System.Serializable]
-    public class BBP_Int : BlackboardParameter_Template<int, IntegerAsset>
+    public class BBP_Int : BlackboardParameter_Template<int, IntegerAsset, IntegerVariable>
     { }
     [System.Serializable]
-    public class BBP_Float : BlackboardParameter_Template<float, FloatAsset>
+    public class BBP_Float : BlackboardParameter_Template<float, FloatAsset, FloatVariable>
     { }
     [System.Serializable]
-    public class BBP_String : BlackboardParameter_Template<string, StringAsset>
+    public class BBP_String : BlackboardParameter_Template<string, StringAsset, StringVariable>
     { }
     [System.Serializable]
-    public class BBP_Vector2 : BlackboardParameter_Template<Vector2, Vector2Asset>
+    public class BBP_Vector2 : BlackboardParameter_Template<Vector2, Vector2Asset, Vector2Variable>
     { }
     [System.Serializable]
-    public class BBP_Vector3 : BlackboardParameter_Template<Vector3, Vector3Asset>
+    public class BBP_Vector3 : BlackboardParameter_Template<Vector3, Vector3Asset, Vector3Variable>
     { }
     [System.Serializable]
-    public class BBP_GameObject : BlackboardParameter_Template<GameObject, GameObjectAsset>
+    public class BBP_GameObject : BlackboardParameter_Template<GameObject, GameObjectAsset, GameObjectVariable>
     { }
 }

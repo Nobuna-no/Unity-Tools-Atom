@@ -115,7 +115,7 @@ namespace UnityTools.Atom
                 description.stringValue = EditorGUI.TextField(buttonRect1, "Entry Description", description.stringValue);
                 description.serializedObject.ApplyModifiedProperties();
 
-                EditorGUI.PropertyField(buttonRect2, DefaultValueRef, new GUIContent("Default value"));
+                EditorGUI.PropertyField(buttonRect2, DefaultValueRef, new GUIContent("Default Value"));
 
                 bshared.boolValue = EditorGUI.Toggle(buttonRect3, new GUIContent("Instance Synced", "May this parameter be shared with all blackboard's owners."), bshared.boolValue);
                 bshared.serializedObject.ApplyModifiedProperties();

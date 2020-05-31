@@ -4,7 +4,7 @@ using UnityEngine;
 namespace UnityTools.Atom
 {
 
-    public class InternalBlackboardParameter : ScriptableObject, IClonable
+    public abstract class InternalBlackboardParameter : ScriptableObject, IClonable
     {
         public StringVariable Name = new StringVariable();
         public string Description = "Enter a description...";
@@ -30,6 +30,10 @@ namespace UnityTools.Atom
 
         public virtual void Close()
         { }
+
+#if UNITY_EDITOR
+        public abstract void Editor_RefreshValue();
+#endif
     }
 
     public class InternalBlackboardParameter<T, TAsset, TVariable> : InternalBlackboardParameter
@@ -38,6 +42,10 @@ namespace UnityTools.Atom
     {
         public TAsset Value;
         public TVariable DefaultValue;
+#if UNITY_EDITOR
+        [HideInInspector]
+        public T RuntimeValue;
+#endif
 
         public override string ToString()
         {
@@ -64,7 +72,7 @@ namespace UnityTools.Atom
                 Value = ScriptableObject.CreateInstance<TAsset>();
             }
 
-            Value.Value = DefaultValue.Value;
+            RuntimeValue = Value.Value = DefaultValue.Value;
         }
 
         public override void Close()
@@ -74,6 +82,21 @@ namespace UnityTools.Atom
                 Value = null;
             }
         }
+
+#if UNITY_EDITOR
+        public override void Editor_RefreshValue()
+        {
+            if (Value == null)
+            {
+                return;
+            }
+            
+            if (Application.isPlaying)
+            {
+                Value.Value = RuntimeValue;
+            }
+        }
+#endif
     }
 
 }
