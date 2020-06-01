@@ -75,7 +75,12 @@ namespace UnityTools.Atom
         {
             BlackBoard = blackboard;
             Target = target;
+
+#if UNITY_EDITOR
+            RefreshInternalValue();
+#endif
             Variable = blackboard.GetVariable<T, TAsset, TVariable>(target, Alpha);
+
         }
 
         public override void Subscribe(UnityAction unityAction)
@@ -115,6 +120,8 @@ namespace UnityTools.Atom
             if(values.ContainsKey(typeof(T)))
             {
                 BlackboardEntries = values[typeof(T)];
+                SelectedEntry = Mathf.Clamp(SelectedEntry, 0, BlackboardEntries.Count - 1);
+                Alpha = BlackboardEntries[SelectedEntry];
             }
             else
             {
@@ -166,4 +173,4 @@ namespace UnityTools.Atom
 #endif
     }
 #endif
-}
+        }

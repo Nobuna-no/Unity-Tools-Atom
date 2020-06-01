@@ -7,52 +7,61 @@ namespace UnityTools.Atom
 
     // Class that allow to get a variable reference to a blackboard of a defined target.
     [System.Serializable]
-    public class BlackboardTargetParameter
+    public abstract class BlackboardTargetParameter
     {
         public GameObject Target;
         public StringVariable EntryName;
-
-        // Use to set the default value.
-        public virtual void Initialize(BlackBoardAsset board)
-        { }
+        public BlackBoardAsset BlackBoard;
     }
 
-    public class BlackboardTargetParameter_Template<T, TAsset> : BlackboardTargetParameter
+    public class BlackboardTargetParameter_Template<T, TAsset, TVariable> : BlackboardTargetParameter
         where TAsset : TAsset<T>
+        where TVariable : TVariable<T, TAsset>
     {
-        //public T DefaultValue;
-        [ReadOnly]
-        public TAsset Variable;
-
-        public override void Initialize(BlackBoardAsset board)
+        [SerializeField]
+        protected TAsset Variable;
+        public T Value
         {
-            //board.SetValue(this, DefaultValue);
-            Variable = board.GetVariable<T, TAsset, TVariable<T, TAsset>>(this);
-        }
+            get 
+            {
+                if (Variable == null)
+                {
+                    Variable = BlackBoard.GetVariable<T, TAsset, TVariable>(this);
+                }
 
-        public static implicit operator T(BlackboardTargetParameter_Template<T, TAsset> _object)
-        {
-            return _object.Variable.Value;
+                return Variable.Value;
+            }
+            set 
+            {
+                if (Variable == null)
+                {
+                    Variable = BlackBoard.GetVariable<T, TAsset, TVariable>(this);
+                }
+
+                Variable.Value = value;
+            }
         }
     }
 
     [System.Serializable]
-    public class BBTP_Bool : BlackboardTargetParameter_Template<bool, BoolAsset>
+    public class BBTP_Bool : BlackboardTargetParameter_Template<bool, BoolAsset, BoolVariable>
     { }
     [System.Serializable]
-    public class BBTP_Int : BlackboardTargetParameter_Template<int, IntegerAsset>
+    public class BBTP_Int : BlackboardTargetParameter_Template<int, IntegerAsset, IntegerVariable>
     { }
     [System.Serializable]
-    public class BBTP_Float : BlackboardTargetParameter_Template<float, FloatAsset>
+    public class BBTP_Float : BlackboardTargetParameter_Template<float, FloatAsset, FloatVariable>
     { }
     [System.Serializable]
-    public class BBTP_Vector2 : BlackboardTargetParameter_Template<Vector2, Vector2Asset>
+    public class BBTP_Vector2 : BlackboardTargetParameter_Template<Vector2, Vector2Asset, Vector2Variable>
     { }
     [System.Serializable]
-    public class BBTP_Vector3 : BlackboardTargetParameter_Template<Vector3, Vector3Asset>
+    public class BBTP_Vector3 : BlackboardTargetParameter_Template<Vector3, Vector3Asset, Vector3Variable>
     { }
     [System.Serializable]
-    public class BBTP_GameObject : BlackboardTargetParameter_Template<GameObject, GameObjectAsset>
+    public class BBTP_GameObject : BlackboardTargetParameter_Template<GameObject, GameObjectAsset, GameObjectVariable>
     { }
-
+    [System.Serializable]
+    public class BBTP_Transform : BlackboardTargetParameter_Template<Transform, TransformAsset, TransformVariable>
+    { }
 }

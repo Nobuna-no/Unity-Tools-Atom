@@ -301,7 +301,6 @@ namespace UnityTools.Atom
                         entries[i] = bbEntries.GetArrayElementAtIndex(i).stringValue;
                     }
 
-                    selectedEntry.intValue = Mathf.Clamp(selectedEntry.intValue, 0, entries.Length);
                     selectedEntry.intValue = EditorGUI.Popup(buttonRect1, selectedEntry.intValue, entries);
                     Alpha.stringValue = entries[selectedEntry.intValue];
                 }

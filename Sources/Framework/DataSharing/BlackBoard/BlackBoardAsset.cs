@@ -147,7 +147,7 @@ namespace UnityTools.Atom
             else
             {
                 m_EntitiesMap.Add(target.Target, ParametersMap);
-                target.Initialize(this);
+                target.BlackBoard = this;
                 return SetReference<T, TAsset, TVariable>(target, ref var);
             }
         }
@@ -167,7 +167,7 @@ namespace UnityTools.Atom
             else
             {
                 m_EntitiesMap.Add(target.Target, new ParametersBoard(ParametersMap));
-                target.Initialize(this);
+                target.BlackBoard = this;
                 return GetVariable<T, TAsset, TVariable>(target);
             }
         }
@@ -185,7 +185,7 @@ namespace UnityTools.Atom
             else
             {
                 m_EntitiesMap.Add(target.Target, new ParametersBoard(ParametersMap));
-                target.Initialize(this);
+                target.BlackBoard = this;
                 SetValue<T>(target, var);
             }
         }

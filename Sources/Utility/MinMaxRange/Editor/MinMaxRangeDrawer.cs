@@ -51,8 +51,8 @@ public class MinMaxRangeDrawer : PropertyDrawer
         }
 
 
-        re4.yMin -= 8;
-        re4.yMax -= 8;
+        re4.yMin -= 10;
+        re4.yMax -= 10;
         
         // Step 5: Infos.
         EditorGUI.LabelField(re4, "Min:" + minf.ToString("0.00") + " | Max:" + maxf.ToString("0.00"), EditorStyles.centeredGreyMiniLabel);

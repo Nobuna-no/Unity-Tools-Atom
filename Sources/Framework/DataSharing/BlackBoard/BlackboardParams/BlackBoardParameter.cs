@@ -79,4 +79,7 @@ namespace UnityTools.Atom
     [System.Serializable]
     public class BBP_GameObject : BlackboardParameter_Template<GameObject, GameObjectAsset, GameObjectVariable>
     { }
+    [System.Serializable]
+    public class BBP_Transform : BlackboardParameter_Template<Transform, TransformAsset, TransformVariable>
+    { }
 }
