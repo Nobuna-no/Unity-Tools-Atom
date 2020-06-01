@@ -26,14 +26,18 @@ namespace UnityTools.Atom
 
         public override void OnInspectorGUI()
         {
-            DrawDefaultInspector();
-
-            //var editorPath = Path.GetDirectoryName(AssetDatabase.GetAssetPath(MonoScript.FromScriptableObject(this)));
-            //var templatePath = editorPath + "/ScriptTemplate/MyEquipmentBehaviour.cs.template";
-
+            //DrawDefaultInspector();
+            DrawCustomInspector();
             DrawModules();
         }
-        public static readonly string PRESET_PATH = "Assets/XX-DATA/StateModulesPresets/";
+
+        private void DrawCustomInspector()
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+            EditorGUILayout.EndVertical();
+        }
+
         bool DrawModule(Editor editor, int index)
         {
             if (editor == null || editor.target == null)
@@ -48,23 +52,6 @@ namespace UnityTools.Atom
             {
                 EditorGUILayout.Space();
                 EditorGUILayout.BeginHorizontal();
-                //if (GUILayout.Button("Generate Preset", EditorStyles.miniButtonLeft))
-                //{
-                //    FSMStateModule_Preset asset = Target.GenerateStateModulePreset(index);
-                //    if (asset != null)
-                //    {
-                //        if (!System.IO.Directory.Exists(PRESET_PATH))
-                //        {
-                //            System.IO.Directory.CreateDirectory(PRESET_PATH);
-                //        }
-                //        AssetDatabase.CreateAsset(asset, PRESET_PATH + editor.target.ToString() + ".asset");
-                //        EditorGUIUtility.PingObject(asset.GetInstanceID());
-                //    }
-                //}
-                //if (GUILayout.Button("Copy Preset", EditorStyles.miniButtonMid))
-                //{
-                //    Target.UpdateStateModulePreset(index);
-                //}
                 if (GUILayout.Button("Remove", EditorStyles.miniButtonRight))
                 {
                     Target.RemoveStateModule(index);

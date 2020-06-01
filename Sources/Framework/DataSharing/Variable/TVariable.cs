@@ -35,8 +35,8 @@ namespace UnityTools.Atom
             get => GetValue();
             set
             {
-                OnValueChanged?.Invoke();
                 SetValue(value);
+                OnValueChanged?.Invoke();
             }
         }
 
@@ -52,6 +52,11 @@ namespace UnityTools.Atom
         {
             return obj.Value;
         }
+
+        //public static explicit operator T(TVariable<T, TAssetType> obj)
+        //{
+        //    return obj.Value;
+        //}
         #endregion
 
 

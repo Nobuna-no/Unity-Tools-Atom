@@ -56,6 +56,7 @@ namespace UnityTools.Atom
             {
                 serializedObject.Update();
                 BlackboardParameterDrawerUtility.DrawElementCallback(ExecuteList, rect, index);
+                Target.NeedRefresh = true;
             };
 
             // On Add
@@ -85,6 +86,8 @@ namespace UnityTools.Atom
                 }
 
                 RemoveItem(i);
+
+                Target.NeedRefresh = true;
             };
 
             ExecuteList.elementHeightCallback = (int index) =>
@@ -175,8 +178,11 @@ namespace UnityTools.Atom
             int index = assetInfo.ComplementaryData.serializedProperty.arraySize++;
             assetInfo.ComplementaryData.serializedProperty.GetArrayElementAtIndex(index).objectReferenceValue = param;
 
+
             serializedObject.Update();
             serializedObject.ApplyModifiedProperties();
+            
+           Target.NeedRefresh = true;
         }
 
         private void ClearBeforeDeletion()

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace UnityTools.Atom
@@ -12,7 +13,7 @@ namespace UnityTools.Atom
     ///  - Finite State machine: to transit information through state without referencing different components or object.
     ///  - Indepedant monobehaviours: you can design very small behaviour without needed interaction with other, you just needed a blackboard holding this data. (i.e. get the direction; know if a character is landing, dead...)
     /// </summary>
-    [CreateAssetMenu(menuName = "Unity Tools/Atom/Asset/BlackBoard", fileName ="[BlackBoard]-", order = 0)]
+    [CreateAssetMenu(menuName = "Unity Tools/Atom/Asset/BlackBoard", fileName = "[BlackBoard]-", order = 0)]
     public class BlackBoardAsset : ScriptableObject_AdvPostProcessing
     {
         #region CLASS
@@ -21,6 +22,7 @@ namespace UnityTools.Atom
         {
             [SerializeField]
             private Dictionary<string, InternalBlackboardParameter> ParametersMap;
+            public Dictionary<string, InternalBlackboardParameter> Parameters { get => ParametersMap; }
 
             public ParametersBoard(ParametersBoard board)
             {
@@ -113,6 +115,11 @@ namespace UnityTools.Atom
                 return m_EntitiesMap;
             }
         }
+
+#if UNITY_EDITOR
+        [ReadOnly]
+        public bool NeedRefresh = false;
+#endif
         #endregion
 
 
@@ -252,6 +259,66 @@ namespace UnityTools.Atom
             }
         }
 
+        public void InitializeTarget(GameObject target)
+        {
+            if (!EntitiesMap.ContainsKey(target))
+            {
+                m_EntitiesMap.Add(target, new ParametersBoard(ParametersMap));
+            }
+        }
+
+
+#if UNITY_EDITOR
+        /// <summary>
+        /// Call this when adding or removing a blackboard value.
+        /// </summary>
+        public void RefreshBlackBoard()
+        {
+            if(m_EntitiesMap == null)
+            {
+                return;
+            }
+
+            if(NeedRefresh)
+            {
+                NeedRefresh = false;
+
+                ParametersMap.Build(BlackboardParameters);
+
+                List<GameObject> gaos = new List<GameObject>(m_EntitiesMap.Keys);
+                for(int i = 0, c = gaos.Count; i < c; ++i)
+                {
+                    m_EntitiesMap[gaos[i]] = new ParametersBoard(ParametersMap);
+                }
+            }
+        }
+
+        public Dictionary<System.Type, List<string>> GetAllBlackboardValueOfTarget(GameObject target)
+        {
+            RefreshBlackBoard();
+
+            if (EntitiesMap.ContainsKey(target))
+            {
+                Dictionary<System.Type, List<string>> map = new Dictionary<System.Type, List<string>>();
+                foreach (string key in EntitiesMap[target].Parameters.Keys)
+                {
+                    System.Type type = EntitiesMap[target].Parameters[key].Editor_GetBasicType();
+                    
+                    if (!map.ContainsKey(type))
+                    {
+                        map.Add(type, new List<string>());
+                    }
+                    
+                    map[type].Add(key);
+                }
+
+                return map;
+            }
+
+            return null;
+        }
+#endif
+
         // BOOLEAN
         public BoolAsset GetBooleanVariable(BlackboardTargetParameter target)
         {
@@ -352,6 +419,6 @@ namespace UnityTools.Atom
         {
             return SetReference<GameObject, GameObjectAsset, GameObjectVariable>(target, ref var);
         }
-        #endregion
+#endregion
     }
 }

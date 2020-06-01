@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using System;
+using System.ComponentModel;
 
 
 #if UNITY_EDITOR
@@ -37,24 +39,42 @@ namespace UnityTools.Atom
 
         public virtual void UnSubscribe(UnityAction unityAction)
         { }
+
+#if UNITY_EDITOR
+        public abstract void RefreshInternalValue();
+#endif
     }
 
     public abstract class BlackboardConditionTemplate<T, TAsset, TVariable> : FSMTransitionCondition
         where TAsset : TAsset<T> 
         where TVariable : TVariable<T, TAsset>
     {
-        public StringVariable Alpha;
+        public string Alpha;
         public TVariable Beta;
 
         protected TAsset Variable;
 
+#if UNITY_EDITOR
+        [HideInInspector]
+        public BlackBoardAsset BlackBoard;
+        [HideInInspector]
+        public GameObject Target;
+        [HideInInspector]
+        public List<string> BlackboardEntries;
+        [HideInInspector]
+        public int SelectedEntry = 0;
+#endif
+
+
         public override string ToString()
         {
-            return "Condition[" + this.name + "]: (BlackboardValue[" + Alpha.Value + "]){" + Variable.Value + "} is " + CompareAsEqual + " to {" + Beta.Value + "}?";
+            return "Condition[" + this.name + "]: (BlackboardValue[" + Alpha + "]){" + Variable.Value + "} is " + CompareAsEqual + " to {" + Beta.Value + "}?";
         }
 
         public override void Initialize(BlackBoardAsset blackboard, GameObject target)
         {
+            BlackBoard = blackboard;
+            Target = target;
             Variable = blackboard.GetVariable<T, TAsset, TVariable>(target, Alpha);
         }
 
@@ -81,6 +101,27 @@ namespace UnityTools.Atom
                 Beta.RemoveActionOnValueChanged(unityAction);
             }
         }
+
+#if UNITY_EDITOR
+        public override void RefreshInternalValue()
+        {
+            if(BlackBoard == null || Target == null)
+            {
+                FiniteStateMachine fsm = GetComponentInParent<FiniteStateMachine>();
+                BlackBoard = fsm.Blackboard;
+                Target = fsm.BlackboardTarget;
+            }
+            var values = BlackBoard.GetAllBlackboardValueOfTarget(Target);
+            if(values.ContainsKey(typeof(T)))
+            {
+                BlackboardEntries = values[typeof(T)];
+            }
+            else
+            {
+                BlackboardEntries = null;
+            }
+        }
+#endif
     }
 
     public abstract class VariableConditionTemplate<T, TAsset, ReferenceT> : FSMTransitionCondition
@@ -117,6 +158,12 @@ namespace UnityTools.Atom
                 Beta.RemoveActionOnValueChanged(unityAction);
             }
         }
+
+#if UNITY_EDITOR
+        public override void RefreshInternalValue()
+        {
+        }
+#endif
     }
 #endif
 }

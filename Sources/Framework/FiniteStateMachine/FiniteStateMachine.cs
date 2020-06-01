@@ -84,6 +84,24 @@ namespace UnityTools.Atom
                     base.Initialize(_Blackboard, _BlackboardTarget);
                     Enter();
                 }
+                else
+                {
+                    if (!_Blackboard)
+                    {
+                        Debug.Break();
+                        Verbose(VerboseMask.WarningLog, this + ": No blackboard set in the primary FSM!");
+                    }
+                    if (!_BlackboardTarget)
+                    {
+                        Verbose(VerboseMask.WarningLog, this + ": No blackboard target set in the primary FSM. Taking own gameobject as target!");
+                        _BlackboardTarget = this.gameObject;
+                    }
+
+                    if(_Blackboard && _BlackboardTarget)
+                    {
+                        _Blackboard.InitializeTarget(_BlackboardTarget);
+                    }
+                }
             }
             else
             {
@@ -102,10 +120,10 @@ namespace UnityTools.Atom
 
                 FiniteStateMachine FSM = parents[parents.Length - 1];
                 _SubFSMOwner = FSM;
-                if (!Application.isPlaying)
-                {
-                    Initialize(FSM.Blackboard, FSM.BlackboardTarget);
-                }
+                //if (!Application.isPlaying)
+                //{
+                Initialize(FSM.Blackboard, FSM.BlackboardTarget);
+                //}
             }
         }
 

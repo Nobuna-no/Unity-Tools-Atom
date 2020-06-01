@@ -50,10 +50,6 @@ namespace UnityTools.Atom
         }
         #endregion
 
-        private void InternalLog(string message)
-        {
-            _Log += "\n" + Time.timeSinceLevelLoad.ToString("0:00") + "> " + message;
-        }
 
         #region PUBLIC METHODS
         public void Init()
@@ -174,6 +170,15 @@ namespace UnityTools.Atom
                 ValidationTimes++;
                 _CurrentState.SetState(_NextState);
             }
+        }
+
+        #endregion
+
+
+        #region PRIVATE METHODS
+        private void InternalLog(string message)
+        {
+            _Log += "\n" + Time.timeSinceLevelLoad.ToString("0:00") + "> " + message;
         }
         #endregion
     }

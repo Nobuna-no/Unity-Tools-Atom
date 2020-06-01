@@ -3,7 +3,8 @@
 using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
-
+using System;
+using System.Linq;
 
 namespace UnityTools.Atom
 {
@@ -90,7 +91,10 @@ namespace UnityTools.Atom
                 {
                     string path = AssetDatabase.GUIDToAssetPath(GUIDs[j]);
                     path = System.IO.Path.GetFileNameWithoutExtension(path);
-                    dropDownMenu.AddItem(new GUIContent(path.Remove(0, path.IndexOf("_") + 1)), false, AddItem, new AssetInfo<ReorderableList> { AssetPath = path, ComplementaryData = list });
+            
+                    Type assetType = GetObjectType(path);
+
+                    dropDownMenu.AddItem(new GUIContent(path.Split('.').Last().Replace('_', ' ')), false, AddItem, new AssetInfo<ReorderableList> { AssetPath = path, ComplementaryData = list });
                 }
 
                 dropDownMenu.ShowAsContext();
@@ -116,6 +120,23 @@ namespace UnityTools.Atom
             };
         }
 
+        public Type GetObjectType(string assetPath)
+        {
+            System.Type assetType = System.Type.GetType("UnityTools.Atom." + assetPath + ", Assembly-CSharp");
+            if (assetType == null)
+            {
+                assetType = System.Type.GetType(assetPath + ", Assembly-CSharp");
+            }
+
+            if (assetType == null)
+            {
+                Logger.Log(Logger.Type.Error, "Blackboard parameter of unknown type. Please put your type in the UnityTools.Atom namespace.", this);
+                return null;
+            }
+
+            return assetType;
+        }
+
         private void AddItem(object obj)
         {
             AssetInfo<ReorderableList> assetInfo = obj as AssetInfo<ReorderableList>;
@@ -124,21 +145,10 @@ namespace UnityTools.Atom
             {
                 return;
             }
+            
+            Type assetType = GetObjectType(assetInfo.AssetPath);
 
-            //string assetName = System.IO.Path.GetFileNameWithoutExtension(assetInfo.AssetPath);
-            System.Type assetType = System.Type.GetType("UnityTools.Atom." + assetInfo.AssetPath + ", Assembly-CSharp");
-            if (assetType == null)
-            {
-                assetType = System.Type.GetType(assetInfo.AssetPath + ", Assembly-CSharp");
-            }
-
-            if (assetType == null)
-            {
-                Logger.Log(Logger.Type.Error, "Blackboard parameter of unknown type. Please put your type in the UnityTools.Atom namespace.", this);
-                return;
-            }
-
-            FSMTransitionCondition newCondition = (FSMTransitionCondition)Target.gameObject.AddComponent(assetType);
+            FSMTransitionCondition newCondition = Target.gameObject.AddComponent(assetType) as FSMTransitionCondition;
 
             int index = assetInfo.ComplementaryData.serializedProperty.arraySize++;
             assetInfo.ComplementaryData.serializedProperty.GetArrayElementAtIndex(index).objectReferenceValue = newCondition;
@@ -256,7 +266,13 @@ namespace UnityTools.Atom
             if (element.objectReferenceValue == null)
                 return;
 
+            (element.objectReferenceValue as FSMTransitionCondition).RefreshInternalValue();
+
             SerializedObject elementObject = new SerializedObject(element.objectReferenceValue);
+            
+            // Try to get value from blackboard condition.
+            SerializedProperty bbEntries = elementObject.FindProperty("BlackboardEntries");
+            SerializedProperty selectedEntry = elementObject.FindProperty("SelectedEntry");
 
             SerializedProperty Comp = elementObject.FindProperty("CompareAsEqual");
             SerializedProperty Alpha = elementObject.FindProperty("Alpha");
@@ -269,7 +285,31 @@ namespace UnityTools.Atom
             Rect buttonRect3 = new Rect(rect.x + rect.width * .6f, Yup, rect.width * .4f, height);
 
 
-            EditorGUI.PropertyField(buttonRect1, Alpha, GUIContent.none);
+            if (bbEntries != null && selectedEntry != null)
+            {
+                if (bbEntries.arraySize == 0)
+                {
+                    buttonRect1 = new Rect(rect.x, Yup, rect.width, height);
+                    EditorGUI.LabelField(buttonRect1, "No matching parameters found in the blackboard");
+                    return;
+                }
+                else
+                {
+                    string[] entries = new string[bbEntries.arraySize];
+                    for (int i = 0, c = bbEntries.arraySize; i < c; ++i)
+                    {
+                        entries[i] = bbEntries.GetArrayElementAtIndex(i).stringValue;
+                    }
+
+                    selectedEntry.intValue = Mathf.Clamp(selectedEntry.intValue, 0, entries.Length);
+                    selectedEntry.intValue = EditorGUI.Popup(buttonRect1, selectedEntry.intValue, entries);
+                    Alpha.stringValue = entries[selectedEntry.intValue];
+                }
+            }
+            else
+            {
+                EditorGUI.PropertyField(buttonRect1, Alpha, GUIContent.none);
+            }
 
             Comp.enumValueIndex = EditorGUI.Popup(buttonRect2, Comp.enumValueIndex, ConditionPopupOptions);
             // Force apply cause don't work alone?

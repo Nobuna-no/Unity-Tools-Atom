@@ -33,6 +33,8 @@ namespace UnityTools.Atom
 
 #if UNITY_EDITOR
         public abstract void Editor_RefreshValue();
+
+        public abstract System.Type Editor_GetBasicType();
 #endif
     }
 
@@ -95,6 +97,11 @@ namespace UnityTools.Atom
             {
                 Value.Value = RuntimeValue;
             }
+        }
+
+        public override System.Type Editor_GetBasicType()
+        {
+            return typeof(T);
         }
 #endif
     }
