@@ -26,8 +26,8 @@ namespace UnityTools.Atom
 
         public override void OnInspectorGUI()
         {
-            //DrawDefaultInspector();
-            DrawCustomInspector();
+            DrawDefaultInspector();
+            //DrawCustomInspector();
             DrawModules();
         }
 
