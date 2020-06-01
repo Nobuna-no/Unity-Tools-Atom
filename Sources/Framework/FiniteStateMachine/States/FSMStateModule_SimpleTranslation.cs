@@ -13,7 +13,7 @@ public class FSMStateModule_SimpleTranslation : FSMStateModule
     public CurveVariable XVelocity;
     public CurveVariable YVelocity;
     public CurveVariable ZVelocity;
-
+    public GameObject OverrideTarget;
     public FloatVariable DurationInSeconds;
 
     [Header(".FSM STATE MODULE/Simple Translation - Event")]
@@ -47,7 +47,7 @@ public class FSMStateModule_SimpleTranslation : FSMStateModule
         currentPos.y = _Origin.y + (Distance.Value.y * YVelocity.Value.Evaluate(_TimeStamp / DurationInSeconds));
         currentPos.z = _Origin.z + (Distance.Value.z * ZVelocity.Value.Evaluate(_TimeStamp / DurationInSeconds));
 
-        Owner.transform.position = currentPos;
+        (OverrideTarget != null ? OverrideTarget : Owner).transform.position = currentPos;
 
         if (_TimeStamp >= DurationInSeconds)
         {

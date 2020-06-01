@@ -10,24 +10,10 @@ namespace UnityTools.Atom
     public class FiniteStateMachine : FSMState
     {
         #region PROPERTIES
-        [Header(".FSM/Settings")]
-
-        //private BlackBoardAsset BlackBoard;
-        [SerializeField]
-        private BlackBoardAsset _Blackboard;
-        public BlackBoardAsset Blackboard { get => _Blackboard; }
-        [SerializeField]
+        [Header(".FSM/Infos")]
+        [SerializeField, ReadOnly]
         private GameObject _BlackboardTarget;
         public GameObject BlackboardTarget { get => _BlackboardTarget; }
-
-        // Entry or current state.
-        [SerializeField]
-        private FSMState _InitialState = null;
-
-        [SerializeField]
-        private FloatVariable _UpdateTickInSecond = new FloatVariable(0.01f);
-
-        [Header(".FSM/Infos")]
         [SerializeField, ReadOnly]
         private FSMState _CurrentState = null;
         [SerializeField, ReadOnly]
@@ -45,6 +31,20 @@ namespace UnityTools.Atom
         private float _RuntimeDeltaTime = 0f;
         private Coroutine _UpdateCrt;
         private float _LastTime = 0f;
+
+        [Header(".FSM/Control")]
+
+        //private BlackBoardAsset BlackBoard;
+        [SerializeField]
+        private BlackBoardAsset _Blackboard;
+        public BlackBoardAsset Blackboard { get => _Blackboard; }
+
+        // Entry or current state.
+        [SerializeField]
+        private FSMState _InitialState = null;
+
+        [SerializeField]
+        private FloatVariable _UpdateTickInSecond = new FloatVariable(0.01f);
         #endregion
 
 
@@ -60,6 +60,11 @@ namespace UnityTools.Atom
             // if there is no FSM parent, it means that this FSM is the primary one.
             if (parents.Length == 1) // If only itself...
             {
+                if (!gameObject.name.Contains("[0-FSM]"))
+                {
+                    gameObject.name = "[0-FSM] " + gameObject.name;
+                }
+
                 if (_Description != null && !_Description.Contains("<Primary State Machine>"))
                 {
                     _Description = "<Primary State Machine>\n" + _Description;
@@ -117,13 +122,16 @@ namespace UnityTools.Atom
                     _Description = "<SubState>\n" + _Description;
                 }
                 IsPrimaryFSM = false;
+                
+                if(!gameObject.name.Contains("[" + (parents.Length - 1).ToString() + "-SubFSM]"))
+                {
+                    gameObject.name = "[" + (parents.Length - 1).ToString() + "-SubFSM] " + gameObject.name;
+                }
 
                 FiniteStateMachine FSM = parents[parents.Length - 1];
                 _SubFSMOwner = FSM;
-                //if (!Application.isPlaying)
-                //{
+
                 Initialize(FSM.Blackboard, FSM.BlackboardTarget);
-                //}
             }
         }
 

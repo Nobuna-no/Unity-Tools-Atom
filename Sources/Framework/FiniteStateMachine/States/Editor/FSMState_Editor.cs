@@ -35,17 +35,53 @@ namespace UnityTools.Atom
         public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
-            
-            DrawCustomInspector();
+            EditorGUILayout.Space(15);
 
-            EditorGUILayout.Space(25);
+            //GUIStyle st = new GUIStyle(EditorStyles.boldLabel);
+
+            //EditorGUILayout.LabelField(".FSM STATE/Control", st);
+            DrawEvents();
+            EditorGUILayout.Space(15);
+            DrawTransitions();
+            EditorGUILayout.Space(15);
             DrawModules();
         }
 
-        private void DrawCustomInspector()
+        private void DrawEvents()
         {
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-            
+
+            GUIStyle st = new GUIStyle(EditorStyles.miniButton);
+            st.fontStyle = FontStyle.Bold;
+            st.fontSize = EditorStyles.boldLabel.fontSize;
+
+            SerializedProperty show = serializedObject.FindProperty("_ShowEvents");
+
+            show.boolValue = GUILayout.Toggle(show.boolValue, new GUIContent("State Events"), st);
+            serializedObject.ApplyModifiedProperties();
+
+            if (show.boolValue)
+            {
+                EditorGUILayout.Space(10);
+
+                SerializedProperty events = serializedObject.FindProperty("_Events");
+                SerializedProperty enter = events.FindPropertyRelative("Enter");
+                SerializedProperty update = events.FindPropertyRelative("Update");
+                SerializedProperty exit = events.FindPropertyRelative("Exit");
+
+                EditorGUILayout.PropertyField(enter);
+                EditorGUILayout.PropertyField(update);
+                EditorGUILayout.PropertyField(exit);
+            }
+
+
+            EditorGUILayout.EndVertical();
+        }
+
+        private void DrawTransitions()
+        {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
             GUIStyle st = new GUIStyle(EditorStyles.miniButton);
             st.fontStyle = FontStyle.Bold;
             st.fontSize = EditorStyles.boldLabel.fontSize;
@@ -55,12 +91,15 @@ namespace UnityTools.Atom
             show.boolValue = GUILayout.Toggle(show.boolValue, new GUIContent("State Transitions"), st);
             serializedObject.ApplyModifiedProperties();
 
-            if(show.boolValue)
+            if (show.boolValue)
             {
                 EditorGUILayout.Space(10);
                 TransitionArray.DoLayoutList();
             }
 
+            Target.CheckTransitionsValidity();
+
+            serializedObject.ApplyModifiedProperties();
 
             EditorGUILayout.EndVertical();
         }
@@ -100,7 +139,6 @@ namespace UnityTools.Atom
                 if(b != null)
                 {
                     GUIStyle st = new GUIStyle(EditorStyles.helpBox);
-                    //st.fontStyle = FontStyle.Bold;
                     st.fontSize = EditorStyles.boldLabel.fontSize;
                     st.alignment = TextAnchor.MiddleCenter;
                     st.focused.textColor = st.active.textColor = st.hover.textColor = st.normal.textColor = b.BlockTransition ? new Color(0.95f, 0.55f, 0.05f)  : Color.green;
@@ -121,8 +159,16 @@ namespace UnityTools.Atom
         {
             list.onAddDropdownCallback = (Rect rect, ReorderableList rlist) =>
             {
-                GameObject newTransition = Instantiate(new GameObject(), Target.transform).gameObject;
-                newTransition.name = "[FSM_ST]" + Target.gameObject.name + "_" + rlist.count;
+                Transform child = Target.transform.Find("<State-Transition>");
+                if(child == null)
+                {
+                    child = new GameObject("<State-Transition>").transform;
+                    child.parent = Target.transform;
+                }
+
+
+                GameObject newTransition = new GameObject("<Transition>" + Target.gameObject.name + "_" + rlist.count);
+                newTransition.transform.parent = child;
                 newTransition.AddComponent<FSMStateTransition>();
 
                 int index = list.serializedProperty.arraySize++;
@@ -252,4 +298,7 @@ namespace UnityTools.Atom
     [CustomEditor(typeof(FSMState))]
     public class FSMState_EditorNoT : FSMState_Editor<FSMState> { }
 
+
+    [CustomEditor(typeof(FiniteStateMachine))]
+    public class FiniteStateMachine_EditorNoT : FSMState_Editor<FiniteStateMachine> { }
 }

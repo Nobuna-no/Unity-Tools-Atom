@@ -145,21 +145,14 @@ namespace UnityTools.Atom
             if (_NextState == null)
             {
                 BlockTransition = true;
-                Logger.Log( Logger.Type.Error, this + ": Next State is null! It can't be for a StateTransition! Transistion disabled.", this);
+                Logger.Log( Logger.Type.Error, this + ": Next State is null! It can't be for a StateTransition! Transition disabled.", this);
                 return;
             }
             bool condition = true;
 
             for (int i = 0; i < Conditions.Count; i++)
             {
-                try
-                {
-                    condition &= Conditions[i].IsConditionValid();
-                }
-                catch
-                {
-                    Logger.Log(Logger.Type.Error, "Invalid condition triggered! Transistion disabled.", this);
-                }
+                condition &= Conditions[i].IsConditionValid();
 
 #if UNITY_EDITOR
                 if (HasFlag(VerboseMask.Log))

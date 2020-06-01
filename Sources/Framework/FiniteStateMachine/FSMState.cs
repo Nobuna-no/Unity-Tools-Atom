@@ -27,12 +27,9 @@ namespace UnityTools.Atom
         [SerializeField, TextArea(1, 5)]
         protected string _Description;
 
-        //[SerializeField]
-        //private bool _AutoRefreshTransitionAtRuntime = true;
-
 
         [Header(".FSM STATE/Settings")]
-        [SerializeField]
+        [SerializeField, HideInInspector]
         protected StateEvent _Events;
 
         [SerializeField, HideInInspector]
@@ -57,7 +54,7 @@ namespace UnityTools.Atom
         [SerializeField, HideInInspector]
         protected bool _ShowTransitions = true;
         [SerializeField, HideInInspector]
-        protected bool _ShowStateModules = false;
+        protected bool _ShowStateModules = true;
 #endif
 
         #endregion
@@ -87,20 +84,25 @@ namespace UnityTools.Atom
 
         protected virtual void OnEnable()
         {
-            //if (_AutoRefreshTransitionAtRuntime)
-            //{
-            //    gameObject.GetComponentsInChildren<FSMStateTransition>(_Transitions);
-            //}
+            CheckTransitionsValidity();
+            
+            FiniteStateMachine[] parents = GetComponentsInParent<FiniteStateMachine>(false);
+
+            if (!gameObject.name.Contains("["+ parents.Length+"-State]"))
+            {
+                gameObject.name = "[" + parents.Length + "-State] " + gameObject.name;
+            }
         }
 
         protected virtual void OnDisable()
         {
             _NeedInitialization = true;
+            CheckTransitionsValidity();
         }
-#endregion
+        #endregion
 
 
-#region VIRTUAL METHODS    
+        #region VIRTUAL METHODS    
         /// <summary>
         /// Methods to initialize BBP_ or BBTP_. (BlackboardParameter or BlackboardTargetParameter)
         /// </summary>
@@ -116,6 +118,8 @@ namespace UnityTools.Atom
                 }
             }
             _NeedInitialization = false;
+
+            CheckTransitionsValidity();
         }
 
 
@@ -221,15 +225,19 @@ namespace UnityTools.Atom
 
 
 #region PUBLIC METHODS
-        //public FSMStateModule_Preset GenerateStateModulePreset(int index)
-        //{
-        //    if (index > StateModules.Count - 1)
-        //    {
-        //        return null;
-        //    }
-
-        //    return null;// StateModules[index]?.GeneratePreset();
-        //}
+        public void CheckTransitionsValidity()
+        {
+            if (_Transitions != null)
+            {
+                for (int i = _Transitions.Count - 1; i >= 0; --i)
+                {
+                    if (_Transitions[i] == null)
+                    {
+                        _Transitions.RemoveAt(i);
+                    }
+                }
+            }
+        }
 
         public void RemoveStateModule(int index)
         {
