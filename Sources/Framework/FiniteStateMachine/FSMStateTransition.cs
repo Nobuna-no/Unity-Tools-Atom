@@ -29,9 +29,11 @@ namespace UnityTools.Atom
         public List<FSMTransitionCondition> Conditions = new List<FSMTransitionCondition>();
 
 #if UNITY_EDITOR
-#pragma warning disable
         [HideInInspector, SerializeField]
         private bool _CurrentlySubscribed = false;
+
+        [HideInInspector]
+        public bool BlockTransition = false;
 #endif
 
         private bool _NeedInitialization = true;
@@ -131,18 +133,33 @@ namespace UnityTools.Atom
 
         public void ComputeCondition()
         {
+
+#if UNITY_EDITOR
+            if(BlockTransition)
+            {
+                return;
+            }
+#endif
+
             _Validated = false;
             if (_NextState == null)
             {
-                Debug.Break();
-                Debug.LogError(this + ": Next State is null! It can't be for a StateTransition!");
+                BlockTransition = true;
+                Logger.Log( Logger.Type.Error, this + ": Next State is null! It can't be for a StateTransition! Transistion disabled.", this);
                 return;
             }
             bool condition = true;
 
             for (int i = 0; i < Conditions.Count; i++)
             {
-                condition &= Conditions[i].IsConditionValid();
+                try
+                {
+                    condition &= Conditions[i].IsConditionValid();
+                }
+                catch
+                {
+                    Logger.Log(Logger.Type.Error, "Invalid condition triggered! Transistion disabled.", this);
+                }
 
 #if UNITY_EDITOR
                 if (HasFlag(VerboseMask.Log))
@@ -172,14 +189,14 @@ namespace UnityTools.Atom
             }
         }
 
-        #endregion
+#endregion
 
 
-        #region PRIVATE METHODS
+#region PRIVATE METHODS
         private void InternalLog(string message)
         {
             _Log += "\n" + Time.timeSinceLevelLoad.ToString("0:00") + "> " + message;
         }
-        #endregion
+#endregion
     }
 }

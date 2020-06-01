@@ -22,21 +22,23 @@ namespace UnityTools.Atom
         #endregion
 
 
-        #region PROPERTIES
+#region PROPERTIES
         [Header(".FSM STATE/Info")]
         [SerializeField, TextArea(1, 5)]
         protected string _Description;
 
+        //[SerializeField]
+        //private bool _AutoRefreshTransitionAtRuntime = true;
+
+
         [Header(".FSM STATE/Settings")]
         [SerializeField]
-        private bool _AutoRefreshTransitionAtRuntime = true;
+        protected StateEvent _Events;
 
-        [SerializeField]
+        [SerializeField, HideInInspector]
         private List<FSMStateTransition> _Transitions = new List<FSMStateTransition>();
         public List<FSMStateTransition> Transitions { get => _Transitions; }
 
-        [SerializeField]
-        protected StateEvent _Events;
 
         protected FiniteStateMachine _SubFSMOwner = null;
         public FiniteStateMachine SubFSMOwner { get => _SubFSMOwner; }
@@ -46,6 +48,18 @@ namespace UnityTools.Atom
 
         private bool _NeedInitialization = true;
         public bool NeedInitialization { get => _NeedInitialization; }
+
+
+#if UNITY_EDITOR
+        /** ONLY FOR CUSTOM EDITOR USAGE */
+        [SerializeField, HideInInspector]
+        protected bool _ShowEvents = true;
+        [SerializeField, HideInInspector]
+        protected bool _ShowTransitions = true;
+        [SerializeField, HideInInspector]
+        protected bool _ShowStateModules = false;
+#endif
+
         #endregion
 
 
@@ -73,20 +87,20 @@ namespace UnityTools.Atom
 
         protected virtual void OnEnable()
         {
-            if (_AutoRefreshTransitionAtRuntime)
-            {
-                gameObject.GetComponentsInChildren<FSMStateTransition>(_Transitions);
-            }
+            //if (_AutoRefreshTransitionAtRuntime)
+            //{
+            //    gameObject.GetComponentsInChildren<FSMStateTransition>(_Transitions);
+            //}
         }
 
         protected virtual void OnDisable()
         {
             _NeedInitialization = true;
         }
-        #endregion
+#endregion
 
 
-        #region VIRTUAL METHODS    
+#region VIRTUAL METHODS    
         /// <summary>
         /// Methods to initialize BBP_ or BBTP_. (BlackboardParameter or BlackboardTargetParameter)
         /// </summary>
@@ -203,10 +217,10 @@ namespace UnityTools.Atom
         {
             SubFSMOwner?.SetState(state);
         }
-        #endregion
+#endregion
 
 
-        #region PUBLIC METHODS
+#region PUBLIC METHODS
         //public FSMStateModule_Preset GenerateStateModulePreset(int index)
         //{
         //    if (index > StateModules.Count - 1)
@@ -260,10 +274,10 @@ namespace UnityTools.Atom
             StateModules.Add(module);
             module.hideFlags = HideFlags.HideInInspector;
         }
-        #endregion
+#endregion
 
 
-        #region PRIVATE METHODS
+#region PRIVATE METHODS
         private void CheckModule()
         {
             if (StateModules == null)
@@ -280,6 +294,6 @@ namespace UnityTools.Atom
                 }
             }
         }
-        #endregion
+#endregion
     }
 }

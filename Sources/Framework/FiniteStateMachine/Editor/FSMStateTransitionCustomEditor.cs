@@ -94,7 +94,7 @@ namespace UnityTools.Atom
             
                     Type assetType = GetObjectType(path);
 
-                    dropDownMenu.AddItem(new GUIContent(path.Split('.').Last().Replace('_', ' ')), false, AddItem, new AssetInfo<ReorderableList> { AssetPath = path, ComplementaryData = list });
+                    dropDownMenu.AddItem(new GUIContent(path.Split('.').Last().Replace('_', '/')), false, AddItem, new AssetInfo<ReorderableList> { AssetPath = path, ComplementaryData = list });
                 }
 
                 dropDownMenu.ShowAsContext();
