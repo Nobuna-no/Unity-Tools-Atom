@@ -10,6 +10,8 @@ namespace UnityTools.Atom
     public class BlackBoardAssetEditor : Editor
     {
         #region PROPERTIES
+        private const string DataCacheFolder = "Unity-Tools-Atom";
+
         private BlackBoardAsset Target;
         private ReorderableList ExecuteList;
         #endregion
@@ -134,7 +136,7 @@ namespace UnityTools.Atom
             string assetName = (assetInfo.AssetPath);
 
             System.Type assetType = System.Type.GetType("UnityTools.Atom." + assetName + ", Assembly-CSharp");
-            if(assetType == null)
+            if (assetType == null)
             {
                 assetType = System.Type.GetType(assetName + ", Assembly-CSharp");
             }
@@ -181,8 +183,8 @@ namespace UnityTools.Atom
 
             serializedObject.Update();
             serializedObject.ApplyModifiedProperties();
-            
-           Target.NeedRefresh = true;
+
+            Target.NeedRefresh = true;
         }
 
         private void ClearBeforeDeletion()
@@ -199,46 +201,36 @@ namespace UnityTools.Atom
             // default path
             path = "UnityTools/Atom/DataCache";
 
-            bool bFound = false;
 
-            while (true)
+            string[] allPaths = AssetDatabase.GetSubFolders("Assets");
+            RecurseFindDataCache(allPaths, ref path);
+        }
+
+
+        private bool RecurseFindDataCache(string[] currentPaths, ref string path)
+        {
+            foreach (string str in currentPaths)
             {
-                if (bFound)
+                if (str.Contains(DataCacheFolder))
                 {
-                    break;
+                    path = str + "/DataCache/";
+                    PlayerPrefs.SetString("Unity-Tools-Atom-DataCache", path);
+                    return true;
                 }
 
-                string[] allPaths = AssetDatabase.GetSubFolders("Assets");
-                if (allPaths.Length == 0)
+                string[] subPath = AssetDatabase.GetSubFolders(str);
+                if (subPath.Length == 0)
                 {
-                    break;
+                   continue;
                 }
 
-                foreach (string str in allPaths)
+                if(RecurseFindDataCache(subPath, ref path))
                 {
-                    if (bFound)
-                    {
-                        break;
-                    }
-
-                    string[] subPath = AssetDatabase.GetSubFolders(str);
-                    if (subPath.Length == 0)
-                    {
-                        break;
-                    }
-
-                    foreach (string sstr in subPath)
-                    {
-                        if (sstr.Contains("Unity-Tools-Atom"))
-                        {
-                            path = sstr + "/DataCache/";
-                            PlayerPrefs.SetString("Unity-Tools-Atom-DataCache", path);
-                            bFound = true;
-                            break;
-                        }
-                    }
+                    return true;
                 }
             }
+
+            return false;
         }
         #endregion
     }
